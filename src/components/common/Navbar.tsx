@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { OfficialCrest } from './OfficialCrest';
 import { useCollege } from '../../context/CollegeContext';
 import { UserRole } from '../../types/college';
+import { fetchActiveAnnouncements } from '../../supabase/announcements';
 import {
   Menu,
   X,
@@ -29,13 +30,37 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
     setCurrentRole,
     currentUser,
     userAccounts,
-    announcements,
     setIsLoginModalOpen,
   } = useCollege();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [portalDropdownOpen, setPortalDropdownOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
+  const [tickerMessages, setTickerMessages] = useState<string[]>([]);
+
+  const defaultTicker =
+    'LABE COLLEGE OF NURSING SCIENCE, GBOKO • ADDRESS: Catholic Diocese of Gboko, Behind St. John the Baptist Cathedral, Gboko, Benue State, Nigeria • MOTTO: LEARN, SERVE AND SAVE • OFFERING: ND NURSING SCIENCE ONLY • ADMISSION IN PROGRESS';
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadTicker = async () => {
+      const notices = await fetchActiveAnnouncements();
+      if (mounted) setTickerMessages(notices.map((notice) => notice.message).filter(Boolean));
+    };
+
+    loadTicker();
+    const timer = window.setInterval(loadTicker, 30000);
+
+    return () => {
+      mounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const tickerText = tickerMessages.length
+    ? tickerMessages.map((message) => `ANNOUNCEMENT: ${message}`).join(' • ')
+    : defaultTicker;
 
   const rolesList: { role: UserRole; title: string; color: string }[] = [
     { role: 'student', title: 'Student Portal', color: 'bg-emerald-600' },
@@ -59,30 +84,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
 
   return (
     <header className="sticky top-0 z-40 w-full shadow-md bg-white">
-      {/* Administrator-controlled global notice ticker */}
-      {announcements.filter((a) => a.active).length > 0 && (
-        <div className="bg-gradient-to-r from-emerald-950 via-slate-950 to-emerald-950 text-white overflow-hidden py-2 border-b-2 border-amber-400 shadow-md relative z-50">
-          <div className="flex items-center animate-marquee-bold whitespace-nowrap gap-10 font-black text-xs sm:text-sm tracking-wider">
-            {[...announcements.filter((a) => a.active), ...announcements.filter((a) => a.active)].map((ann, index) => (
-              <React.Fragment key={`${ann.id}-${index}`}>
-                <span className="bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded font-black text-[10px] tracking-widest">
-                  {ann.priority === 'urgent' ? 'URGENT NOTICE' : 'NOTICE'}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('announcements')}
-                  className="text-white hover:text-amber-300 transition-colors cursor-pointer"
-                >
-                  {ann.title}: {ann.message}
-                </button>
-                <span className="text-amber-400">✦</span>
-              </React.Fragment>
-            ))}
-          </div>
+      {/* Yellow address / announcement ticker */}
+      <div className="bg-yellow-400 text-slate-950 overflow-hidden py-2.5 border-b-2 border-amber-600 shadow-md relative z-50">
+        <div className="flex w-max animate-marquee-bold whitespace-nowrap font-black text-xs sm:text-sm tracking-wide uppercase">
+          <div className="px-8" aria-label={tickerText}>{tickerText}</div>
+          <div className="px-8" aria-hidden="true">{tickerText}</div>
         </div>
-      )}
+      </div>
 
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      {/* Top Notification & Quick Bar */}
+      <div className="bg-emerald-950 text-white text-[11px] sm:text-xs py-2 px-4 border-b border-emerald-800">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           {/* Left: Diocese & Motto */}
           <div className="flex items-center gap-2">
             <span className="font-semibold text-amber-400 uppercase tracking-wider">
@@ -125,6 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
             </button>
           </div>
         </div>
+      </div>
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">

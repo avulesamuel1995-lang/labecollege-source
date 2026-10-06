@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCollege } from '../../context/CollegeContext';
 import { OfficialCrest } from '../common/OfficialCrest';
 import {
@@ -23,6 +23,8 @@ import {
   Shield,
   HelpCircle,
 } from 'lucide-react';
+import { fetchSupabaseGallery, SupabaseGalleryItem } from '../../supabase/announcements';
+import { BISHOP_PROPRIETOR_IMAGE } from '../../data/collegeImages';
 
 interface HomePageProps {
   onNavigate: (view: string) => void;
@@ -35,10 +37,42 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     announcements,
     programmes,
     facilities,
+    gallery,
     coreValues,
     news,
   } = useCollege();
   const applicationOpen = siteSettings.postUtmeApplicationOpen !== false;
+  const [homepageGallery, setHomepageGallery] = useState(gallery);
+
+  useEffect(() => {
+    setHomepageGallery(gallery);
+
+    let mounted = true;
+    fetchSupabaseGallery().then((remoteGallery) => {
+      if (!mounted || remoteGallery.length === 0) return;
+
+      const normalized = remoteGallery.map((item: SupabaseGalleryItem, index) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category || 'Campus',
+        imageUrl: item.image_url || item.imageUrl || '',
+        caption: item.caption || item.title,
+        date: item.date || '',
+        displayOrder: item.display_order ?? item.displayOrder ?? index + 1,
+        published: item.published !== false,
+      }));
+
+      setHomepageGallery(normalized);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [gallery]);
+
+  const featuredPhoto = homepageGallery
+    .filter((photo) => photo.published !== false && photo.imageUrl)
+    .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))[0];
 
   // Filter active announcements
   const activeAnnouncements = announcements.filter((a) => a.active);
@@ -207,6 +241,31 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
+      {/* Featured institutional photograph with expanded caption */}
+      {featuredPhoto && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="relative overflow-hidden rounded-3xl bg-slate-950 border-4 border-amber-400 shadow-2xl">
+            <img
+              src={featuredPhoto.imageUrl}
+              alt={featuredPhoto.title}
+              className="w-full h-[420px] sm:h-[520px] object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 md:p-12 max-w-5xl">
+              <span className="inline-flex px-3 py-1.5 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider mb-4">
+                {featuredPhoto.category}
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight drop-shadow-lg">
+                {featuredPhoto.title}
+              </h2>
+              <p className="mt-3 text-sm sm:text-lg text-white leading-relaxed font-medium max-w-4xl drop-shadow-md">
+                {featuredPhoto.caption}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Motto Pillars: LEARN, SERVE, SAVE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -313,6 +372,101 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Proprietor - Bishop of Catholic Diocese of Gboko */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-3xl overflow-hidden border border-emerald-200 shadow-xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
+            <div className="lg:col-span-5 bg-emerald-950 p-8 sm:p-10 flex items-center justify-center">
+              <div className="w-64 h-80 sm:w-72 sm:h-96 rounded-2xl overflow-hidden border-4 border-amber-400 shadow-2xl bg-slate-900">
+                <img
+                  src={BISHOP_PROPRIETOR_IMAGE}
+                  alt="Most Rev. William A. Avenya, Bishop and Proprietor"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </div>
+            <div className="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-center">
+              <span className="text-xs font-black uppercase tracking-widest text-amber-600">
+                Proprietor - Bishop of Catholic Diocese of Gboko
+              </span>
+              <h2 className="mt-2 text-2xl sm:text-4xl font-black text-emerald-950">
+                Most Rev. William A. Avenya
+              </h2>
+              <p className="mt-1 text-sm font-bold text-emerald-700">
+                Catholic Bishop of Gboko Diocese • Proprietor, Labe College of Nursing Science
+              </p>
+              <p className="mt-6 text-sm sm:text-base text-slate-600 leading-relaxed">
+                As proprietor and pastoral guide of the College, His Lordship supports the growth
+                of professional nursing education rooted in faith, discipline, compassion and
+                service. Labe College of Nursing Science is called to form competent nurses who
+                learn with excellence, serve with compassion and save lives with integrity.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <span className="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                  Catholic Diocese of Gboko
+                </span>
+                <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800">
+                  Learn • Serve • Save
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Homepage Gallery - all published Gallery page pictures */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest block">
+              Official Photo Archive
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-emerald-950">
+              College Gallery
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              All published photographs from the College Gallery are displayed here.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('gallery')}
+            className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer"
+          >
+            View Full Gallery <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {homepageGallery
+            .filter((photo) => photo.published !== false && photo.imageUrl)
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+            .map((photo) => (
+              <button
+                key={photo.id}
+                type="button"
+                onClick={() => onNavigate('gallery')}
+                className="group relative overflow-hidden rounded-2xl bg-slate-950 aspect-[4/3] shadow-md border border-slate-200 text-left cursor-pointer"
+              >
+                <img
+                  src={photo.imageUrl}
+                  alt={photo.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-black text-amber-300">
+                    {photo.category}
+                  </span>
+                  <h3 className="mt-1 text-xs sm:text-sm font-black text-white leading-snug line-clamp-2">
+                    {photo.title}
+                  </h3>
+                </div>
+              </button>
+            ))}
         </div>
       </section>
 

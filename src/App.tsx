@@ -16,12 +16,34 @@ import { ContactPage } from './components/public/ContactPage';
 import { ApplicantPortal } from './components/portal/ApplicantPortal';
 import { PortalLayout } from './components/portal/PortalLayout';
 import { LoginModal } from './components/common/LoginModal';
+import { AnnouncementsAdmin } from './pages/admin/AnnouncementsAdmin';
 
 const MainContent: React.FC = () => {
   const { activeView, setActiveView } = useCollege();
 
+  const viewFromPath = () =>
+    window.location.pathname.replace(/\/+$/, '') === '/admin/announcements'
+      ? 'admin/announcements'
+      : 'home';
+
+  useEffect(() => {
+    const initialView = viewFromPath();
+    if (initialView !== 'home') setActiveView(initialView);
+
+    const handlePopState = () => setActiveView(viewFromPath());
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [setActiveView]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (activeView === 'admin/announcements') {
+      if (window.location.pathname !== '/admin/announcements') {
+        window.history.pushState({}, '', '/admin/announcements');
+      }
+    } else if (window.location.pathname === '/admin/announcements') {
+      window.history.pushState({}, '', '/');
+    }
   }, [activeView]);
 
   if (activeView === 'portal') {
@@ -33,6 +55,9 @@ const MainContent: React.FC = () => {
       <Navbar onNavigate={setActiveView} activeView={activeView} />
 
       <main className="flex-1">
+        {activeView === 'admin/announcements' && (
+          <AnnouncementsAdmin onNavigate={setActiveView} />
+        )}
         {activeView === 'home' && <HomePage onNavigate={setActiveView} />}
         {activeView === 'about' && <AboutPage onNavigate={setActiveView} />}
         {activeView === 'provost' && <ProvostPage onNavigate={setActiveView} />}

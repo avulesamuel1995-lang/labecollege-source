@@ -321,13 +321,8 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
     const loaded = getInitial('announcements', INITIAL_ANNOUNCEMENTS);
-    // Remove legacy hard-coded notices so only notices explicitly published by an
-    // administrator remain visible across the public site.
-    const legacyIds = new Set(['ann-2', 'ann-3']);
     return (Array.isArray(loaded) ? loaded : []).filter(
-      (a: Announcement) =>
-        a.title !== '2026/2027 Post-UTME Admission Screening Now Open!' &&
-        !legacyIds.has(a.id)
+      (a: Announcement) => a.title !== '2026/2027 Post-UTME Admission Screening Now Open!'
     );
   });
   const [downloads, setDownloads] = useState<DownloadItem[]>(
