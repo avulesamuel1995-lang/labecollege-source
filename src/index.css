@@ -12,7 +12,7 @@
 .animate-marquee-bold {
   display: inline-flex;
   white-space: nowrap;
-  animation: marquee 30s linear infinite;
+  animation: marquee 12s linear infinite;
 }
 
 .animate-marquee-bold:hover {

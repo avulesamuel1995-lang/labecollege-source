@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { OfficialCrest } from './OfficialCrest';
 import { useCollege } from '../../context/CollegeContext';
 import { UserRole } from '../../types/college';
-import { fetchActiveAnnouncements } from '../../supabase/announcements';
 import {
   Menu,
   X,
@@ -30,36 +29,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
     setCurrentRole,
     currentUser,
     userAccounts,
+    announcements,
     setIsLoginModalOpen,
   } = useCollege();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [portalDropdownOpen, setPortalDropdownOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
-  const [tickerMessages, setTickerMessages] = useState<string[]>([]);
-
   const defaultTicker =
-    'LABE COLLEGE OF NURSING SCIENCE, GBOKO • ADDRESS: Catholic Diocese of Gboko, Behind St. John the Baptist Cathedral, Gboko, Benue State, Nigeria • MOTTO: LEARN, SERVE AND SAVE • OFFERING: ND NURSING SCIENCE ONLY • ADMISSION IN PROGRESS';
+    'LABE COLLEGE OF NURSING SCIENCE, GBOKO • ADDRESS: Catholic Diocese of Gboko Off Gboko Hill Road, Gboko, PMB 1955, Gboko,';
 
-  useEffect(() => {
-    let mounted = true;
+  const activeTickerNotices = announcements
+    .filter((notice) => notice.active)
+    .filter((notice) => !notice.expiryDate || notice.expiryDate >= new Date().toISOString().split('T')[0])
+    .map((notice) => notice.message)
+    .filter(Boolean);
 
-    const loadTicker = async () => {
-      const notices = await fetchActiveAnnouncements();
-      if (mounted) setTickerMessages(notices.map((notice) => notice.message).filter(Boolean));
-    };
-
-    loadTicker();
-    const timer = window.setInterval(loadTicker, 30000);
-
-    return () => {
-      mounted = false;
-      window.clearInterval(timer);
-    };
-  }, []);
-
-  const tickerText = tickerMessages.length
-    ? tickerMessages.map((message) => `ANNOUNCEMENT: ${message}`).join(' • ')
+  const tickerText = activeTickerNotices.length
+    ? `${defaultTicker} • ${activeTickerNotices.map((message) => `NOTICE: ${message}`).join(' • ')}`
     : defaultTicker;
 
   const rolesList: { role: UserRole; title: string; color: string }[] = [

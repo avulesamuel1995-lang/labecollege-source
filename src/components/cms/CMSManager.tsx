@@ -647,6 +647,234 @@ export const CMSManager: React.FC = () => {
         </div>
       )}
 
+      {/* SECTION 8: ANNOUNCEMENTS / NOTICE BOARD */}
+      {activeSection === 'announcements' && (
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border border-slate-200 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-lg font-black text-slate-900 uppercase">
+                Notice Board & Moving Ticker Management
+              </h2>
+              <p className="text-xs text-slate-500">
+                Create, publish, edit, activate/deactivate, and delete notices. Active notices appear on the public Announcements page and the yellow moving ticker.
+              </p>
+            </div>
+            <button
+              onClick={() =>
+                setEditingAnn({
+                  id: `ann-${Date.now()}`,
+                  title: '2026/2027 Academic Session Resumption Notice',
+                  message:
+                    'Labe College of Nursing Science, Gboko will open in October 2026 for the 2026/2027 academic session. Parents, applicants and students are advised to take note and prepare accordingly.',
+                  date: new Date().toISOString().split('T')[0],
+                  expiryDate: '2026-12-31',
+                  priority: 'important',
+                  active: true,
+                })
+              }
+              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Create Notice
+            </button>
+          </div>
+
+          {editingAnn && (
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-300 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-bold text-sm text-emerald-950">
+                  {announcements.some((a) => a.id === editingAnn.id) ? 'Edit Notice' : 'Create / Publish Notice'}
+                </h3>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  CMS Notice
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold text-slate-700 mb-1">Notice Title *</label>
+                  <input
+                    type="text"
+                    value={editingAnn.title}
+                    onChange={(e) => setEditingAnn({ ...editingAnn, title: e.target.value })}
+                    placeholder="e.g. 2026/2027 Academic Session Opening"
+                    className="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold text-slate-700 mb-1">Notice Message *</label>
+                  <textarea
+                    rows={5}
+                    value={editingAnn.message}
+                    onChange={(e) => setEditingAnn({ ...editingAnn, message: e.target.value })}
+                    placeholder="Type the full official notice..."
+                    className="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Notice Date</label>
+                  <input
+                    type="date"
+                    value={editingAnn.date}
+                    onChange={(e) => setEditingAnn({ ...editingAnn, date: e.target.value })}
+                    className="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Expiry Date (optional)</label>
+                  <input
+                    type="date"
+                    value={editingAnn.expiryDate || ''}
+                    onChange={(e) => setEditingAnn({ ...editingAnn, expiryDate: e.target.value || undefined })}
+                    className="w-full p-2.5 border rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Priority</label>
+                  <select
+                    value={editingAnn.priority}
+                    onChange={(e) =>
+                      setEditingAnn({
+                        ...editingAnn,
+                        priority: e.target.value as Announcement['priority'],
+                      })
+                    }
+                    className="w-full p-2.5 border rounded-xl"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="important">Important</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-3 pt-6">
+                  <input
+                    id="notice-active"
+                    type="checkbox"
+                    checked={editingAnn.active}
+                    onChange={(e) => setEditingAnn({ ...editingAnn, active: e.target.checked })}
+                    className="w-4 h-4 accent-emerald-800"
+                  />
+                  <label htmlFor="notice-active" className="font-bold text-slate-700">
+                    Publish / Show on Website & Moving Ticker
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-2 pt-3 border-t">
+                <button
+                  onClick={() => setEditingAnn(null)}
+                  className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!editingAnn.title.trim() || !editingAnn.message.trim()) {
+                      alert('Please enter both a notice title and message.');
+                      return;
+                    }
+                    await saveAnnouncement({
+                      ...editingAnn,
+                      title: editingAnn.title.trim(),
+                      message: editingAnn.message.trim(),
+                    });
+                    setEditingAnn(null);
+                    alert('Notice published/saved successfully. The public ticker will update automatically.');
+                  }}
+                  className="px-5 py-2 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded-lg text-xs flex items-center gap-1.5"
+                >
+                  <Save className="w-4 h-4" /> Save & Publish
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-xs font-bold text-amber-900">
+              Current notice:
+            </p>
+            <p className="text-xs text-amber-800 mt-1">
+              The college will open in October 2026 for the 2026/2027 academic session. This notice can be edited or deleted by an authorized administrator.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
+                  <th className="py-3 px-3">Notice</th>
+                  <th className="py-3 px-3">Date</th>
+                  <th className="py-3 px-3">Priority</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {announcements.map((ann) => (
+                  <tr key={ann.id} className="hover:bg-slate-50 align-top">
+                    <td className="py-3 px-3 min-w-[320px]">
+                      <p className="font-bold text-slate-900">{ann.title}</p>
+                      <p className="text-slate-500 mt-1 leading-relaxed">{ann.message}</p>
+                    </td>
+                    <td className="py-3 px-3 text-slate-500 whitespace-nowrap">{ann.date}</td>
+                    <td className="py-3 px-3">
+                      <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-800 font-bold capitalize">
+                        {ann.priority}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <button
+                        onClick={() => saveAnnouncement({ ...ann, active: !ann.active })}
+                        className={`px-2.5 py-1 rounded-full font-bold ${
+                          ann.active
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}
+                        title="Toggle website publication"
+                      >
+                        {ann.active ? 'Published' : 'Hidden'}
+                      </button>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setEditingAnn(ann)}
+                          className="p-1.5 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-emerald-50"
+                          title="Edit notice"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm(`Delete "${ann.title}"?`)) return;
+                            await deleteAnnouncement(ann.id);
+                          }}
+                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50"
+                          title="Delete notice"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {announcements.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-slate-400">
+                      No notices published. Click <strong>Create Notice</strong> to add one.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* SECTION 5: AUDIT LOG VIEWER */}
       {activeSection === 'audit' && (
         <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border border-slate-200 space-y-6">

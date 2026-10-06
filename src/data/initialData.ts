@@ -518,25 +518,13 @@ export const INITIAL_NEWS: NewsItem[] = [
 
 export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
   {
-    id: 'ann-2',
-    title: 'Deadline for First Semester Course Registration',
+    id: 'ann-opening-2026-2027',
+    title: '2026/2027 Academic Session Resumption Notice',
     message:
-      'All returning and newly admitted students must complete online course registration and bursary clearance on or before Friday, 15th April 2026. Late registration incurs surcharge.',
-    date: '2026-03-18',
-    expiryDate: '2026-04-15',
+      'Labe College of Nursing Science, Gboko will open in October 2026 for the 2026/2027 academic session. Parents, applicants and students are advised to take note and prepare accordingly.',
+    date: '2026-10-06',
+    expiryDate: '2026-12-31',
     priority: 'important',
-    active: true,
-    linkText: 'Register Courses',
-    linkUrl: '/portal',
-  },
-  {
-    id: 'ann-3',
-    title: 'Commencement of Mid-Semester Computer-Based Tests (CBT)',
-    message:
-      'The Academic Planning Committee wishes to notify all ND 1 and ND 2 students that Continuous Assessment CBT begins on Monday at the ICT Complex. Ensure you have your valid student ID card.',
-    date: '2026-03-10',
-    expiryDate: '2026-04-30',
-    priority: 'normal',
     active: true,
   },
 ];

@@ -271,7 +271,8 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!updated || !updated.logoUrl) {
       updated.logoUrl = INITIAL_SITE_SETTINGS.logoUrl;
     }
-    if (!updated.address || updated.address.includes('Sinai') || updated.address.includes('Benue State, Nigeria (Opposite')) {
+    // Keep the official public address synchronized with the current institutional wording.
+    if (updated.address !== INITIAL_SITE_SETTINGS.address) {
       updated.address = INITIAL_SITE_SETTINGS.address;
     }
     return updated;
@@ -320,10 +321,21 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     getInitial('news', INITIAL_NEWS)
   );
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    const hasCachedAnnouncements = localStorage.getItem('lcns_v3_announcements') !== null;
     const loaded = getInitial('announcements', INITIAL_ANNOUNCEMENTS);
-    return (Array.isArray(loaded) ? loaded : []).filter(
-      (a: Announcement) => a.title !== '2026/2027 Post-UTME Admission Screening Now Open!'
+    const cleaned = (Array.isArray(loaded) ? loaded : []).filter(
+      (a: Announcement) =>
+        a.title !== '2026/2027 Post-UTME Admission Screening Now Open!' &&
+        a.title !== 'Deadline for First Semester Course Registration' &&
+        a.title !== 'Commencement of Mid-Semester Computer-Based Tests (CBT)'
     );
+
+    // Existing browser caches from the earlier build contained stale notices.
+    // Replace them once with the current institutional opening notice.
+    if (!hasCachedAnnouncements || cleaned.length === 0) {
+      return INITIAL_ANNOUNCEMENTS;
+    }
+    return cleaned;
   });
   const [downloads, setDownloads] = useState<DownloadItem[]>(
     getInitial('downloads', INITIAL_DOWNLOADS)
@@ -398,7 +410,7 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const siteDoc = await getDoc(doc(db, 'site_settings', 'general'));
         if (siteDoc.exists()) {
           const data = siteDoc.data() as SiteSettings;
-          if (!data.address || data.address.includes('Sinai') || data.address.includes('Benue State, Nigeria (Opposite')) {
+          if (data.address !== INITIAL_SITE_SETTINGS.address) {
             data.address = INITIAL_SITE_SETTINGS.address;
             await setDoc(doc(db, 'site_settings', 'general'), data);
           }
@@ -420,6 +432,39 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const unsubscribers: Array<() => void> = [];
 
     try {
+      unsubscribers.push(
+        onSnapshot(
+          collection(db, 'announcements'),
+          async (snapshot) => {
+            if (snapshot.empty) {
+              // Seed only when this browser has never initialized the collection.
+              // This prevents an administrator from being unable to delete the final notice.
+              const hasLocalAnnouncements = localStorage.getItem('lcns_v3_announcements') !== null;
+              if (!hasLocalAnnouncements) {
+                for (const item of INITIAL_ANNOUNCEMENTS) {
+                  try {
+                    await setDoc(doc(db, 'announcements', item.id), item, { merge: true });
+                  } catch (e) {
+                    console.warn('Announcement seed failed:', e);
+                  }
+                }
+              } else {
+                setAnnouncements([]);
+                persist('announcements', []);
+              }
+              return;
+            }
+
+            const liveAnnouncements = snapshot.docs
+              .map((d) => ({ ...(d.data() as Announcement), id: d.id }))
+              .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            setAnnouncements(liveAnnouncements);
+            persist('announcements', liveAnnouncements);
+          },
+          (error) => console.warn('Announcements live sync unavailable:', error)
+        )
+      );
+
       unsubscribers.push(
         onSnapshot(
           collection(db, 'gallery'),
@@ -740,6 +785,11 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
       : [ann, ...announcements];
     setAnnouncements(updated);
     persist('announcements', updated);
+    try {
+      await setDoc(doc(db, 'announcements', ann.id), ann, { merge: true });
+    } catch (e) {
+      console.warn('Firestore announcement save failed; local cache retained.', e);
+    }
     await logAction(exists ? 'Edit Announcement' : 'Post Announcement', ann.title);
   };
 
@@ -748,6 +798,11 @@ export const CollegeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const updated = announcements.filter((a) => a.id !== id);
     setAnnouncements(updated);
     persist('announcements', updated);
+    try {
+      await deleteDoc(doc(db, 'announcements', id));
+    } catch (e) {
+      console.warn('Firestore announcement delete failed; local cache retained.', e);
+    }
     await logAction('Delete Announcement', ann?.title || id);
   };
 
