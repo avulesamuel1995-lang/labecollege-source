@@ -217,11 +217,26 @@ export const ContactPage: React.FC = () => {
                     Submit Official Enquiry
                   </button>
                 </form>
-              )}
-            </div>
-          </div>
-        </div>
+          </form>
+
+      {/* Gboko Map */}
+      <div className="mt-12 w-full h-[450px] rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.3!2d8.999!3d7.322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1051d1f0a0a0a0a0%3A0x1!2sLabe%20College%20of%20Nursing%20Science%2C%20Gboko%2C%20Benue%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1700000000000!5m2!1sen!2sng"
+          width="100%"
+          height="450"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Labe College Map - Gboko"
+        ></iframe>
+      </div>
+
+      </div>
+      </div>
+      </div>
       </section>
-    </div>
-  );
-};
+      </div>
+    );
+  };
