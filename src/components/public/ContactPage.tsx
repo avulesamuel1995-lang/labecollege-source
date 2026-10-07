@@ -75,7 +75,7 @@ export default function ContactPage() {
           </div>
           <div className="bg-white p-5 rounded-2xl border shadow-sm space-y-3 text-xs text-slate-700">
             <p className="flex gap-2 items-center"><MapPin className="w-4 h-4 text-emerald-700" /> Labe, Gboko LGA, Benue State, Nigeria</p>
-            <p className="flex gap-2 items-center"><Phone className="w-4 h-4 text-emerald-700" /> +234 8126799565</p>
+            <p className="flex gap-2 items-center"><Phone className="w-4 h-4 text-emerald-700" /> +234 701 704 1247</p>
             <p className="flex gap-2 items-center"><Mail className="w-4 h-4 text-emerald-700" /> info@labecollegeofnursing.com.ng</p>
             <p className="flex gap-2 items-center"><Clock className="w-4 h-4 text-emerald-700" /> Mon - Fri, 8am - 5pm</p>
             <a href="https://www.google.com/maps/search/?api=1&query=Gboko+Benue+State" target="_blank" className="inline-block mt-2 px-4 py-2 bg-emerald-800 text-white rounded-lg text-xs font-bold">Open in Google Maps</a>
