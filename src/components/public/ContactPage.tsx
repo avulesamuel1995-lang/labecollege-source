@@ -206,21 +206,16 @@ export const ContactPage: React.FC = () => {
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Please write your detailed enquiry here..."
                       className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs focus:border-emerald-600 focus:outline-hidden"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Send className="w-4 h-4 text-amber-300" />
-                    Submit Official Enquiry
-                  </button>
-                </form>
-          </form>
-
-      {/* Gboko Map */}
-      <div className="mt-12 w-full h-[450px] rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                <button
+            type="submit"
+            className="w-full py-3.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Send className="w-4 h-4 text-amber-300" />
+            Submit Official Enquiry
+          </button>
+          </Form>
+          {/* Gboko Map */}
+          <div className="mt-12 w-full h-[450px] rounded-xl overflow-hidden border border-slate-200 shadow-sm">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.3!2d8.999!3d7.322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1051d1f0a0a0a0a0%3A0x1!2sLabe%20College%20of%20Nursing%20Science%2C%20Gboko%2C%20Benue%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1700000000000!5m2!1sen!2sng"
           width="100%"
