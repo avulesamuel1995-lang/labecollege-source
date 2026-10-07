@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { CollegeProvider, useCollege } from './context/CollegeContext';
+import { CollegeProvider, useCollege } from './context/CollegeContext';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
-import { HomePage } from './components/public/HomePage';
-import { AboutPage } from './components/public/AboutPage';
-import { ProvostPage } from './components/public/ProvostPage';
-import { ProgrammesPage } from './components/public/ProgrammesPage';
-import { DepartmentsPage } from './components/public/DepartmentsPage';
-import { FacilitiesPage } from './components/public/FacilitiesPage';
-import { GalleryPage } from './components/public/GalleryPage';
-import { NewsPage } from './components/public/NewsPage';
-import { AnnouncementsPage } from './components/public/AnnouncementsPage';
-import { DownloadsPage } from './components/public/DownloadsPage';
-import { ContactPage } from './components/public/ContactPage';
-import { ApplicantPortal } from './components/portal/ApplicantPortal';
-import { PortalLayout } from './components/portal/PortalLayout';
-import { LoginModal } from './components/common/LoginModal';
-import { AnnouncementsAdmin } from './pages/admin/AnnouncementsAdmin';
-
+import HomePage from './components/public/HomePage';
+import AboutPage from './components/public/AboutPage';
+import ProvostPage from './components/public/ProvostPage';
+import ProgrammesPage from './components/public/ProgrammesPage';
+import DepartmentsPage from './components/public/DepartmentsPage';
+import FacilitiesPage from './components/public/FacilitiesPage';
+import GalleryPage from './components/public/GalleryPage';
+import NewsPage from './components/public/NewsPage';
+import AnnouncementsPage from './components/public/AnnouncementsPage';
+import DownloadsPage from './components/public/DownloadsPage';
+import ContactPage from './components/public/ContactPage';
 const MainContent: React.FC = () => {
   const { activeView, setActiveView } = useCollege();
 
