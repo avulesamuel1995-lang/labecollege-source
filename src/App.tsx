@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { CollegeProvider, useCollege } from './context/CollegeContext';
-import { CollegeProvider, useCollege } from './context/CollegeContext';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import HomePage from './components/public/HomePage';
